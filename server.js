@@ -11,7 +11,7 @@ const userRoutes = require('./routes/user_routes')
 const app = express();
 app.use(passport.initialize());
 app.use(morgan('dev'))
-app.use(userRoutes)
+// app.use(userRoutes)
 app.set("trust proxy", 1); // trust first proxy
 
 app.use(session(
@@ -67,10 +67,13 @@ passport.use(
             const token1 = await sign({ id: profile.id }, SECRET_KEY, {
                   expiresIn: "6h"
             })
-            currentuser.jwt_token = token1
-            User.updateOne(currentuser)
+            // currentuser.jwt_token = token1
+            User.findOneAndUpdate({twitter_id:profile._id},{jwt_token:token1},{new: true})
             .then(()=>{done(null,currentuser)})
-            .catch(err=>console.log(err))
+            .catch(err=>console.log('error at line 73 '+err))
+            // User.updateOne(currentuser)
+            // .then(()=>{done(null,currentuser)})
+            // .catch(err=>console.log(err))
         }
         generate_tok()          
       }else{
@@ -111,6 +114,8 @@ app.get(
   }
 );
 
-app.listen(3000, () => {
-  console.log("server running at 3000");
+let port = process.env.PORT || 3000
+
+app.listen(port, () => {
+  console.log("server running at "+port);
 });
